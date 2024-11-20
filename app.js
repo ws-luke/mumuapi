@@ -7,7 +7,7 @@ const swaggerUi = require('swagger-ui-express');
 const swaggerDocument = require('./swagger-output.json');
 
 const user = require('./routes/userRoutes');
-app.use(cors());
+
 app.use(session({
     secret: 'keyboard cat',
     resave: true,
@@ -21,9 +21,9 @@ app.use(session({
 app.use(cookieParser());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-
+app.use(cors());
 //router
-app.use('/user',user);
+app.use('/api/user',user);
 
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 const PORT = process.env.PORT || 3000;

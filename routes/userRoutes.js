@@ -25,16 +25,22 @@ router.post('/sign_up',
           }
   } */
   (req, res, next) => {
-  const { email, password, phoneNumber } = req.body;
+  const { email, password, phoneNumber, userName, companyName, address, salesChannels, ubn, businessLiaison } = req.body;
   firebaseAuth.createUserWithEmailAndPassword(email, password)
   .then((user) => {
     req.session.email = email;
     req.session.password = password;
     req.session.uid = user.user.uid;
     let saveUser = {
-      "email": email,
-      "password": password,
-      "phoneNumber": phoneNumber,
+      "email": email, //信箱
+      "password": password, //密碼
+      "userName": userName, //姓名
+      "companyName": companyName, //公司名稱
+      "phoneNumber": phoneNumber, //手機號碼
+      "address": address, //地址
+      "salesChannels": salesChannels, // 賣場通路
+      "ubn":ubn, //統編
+      "businessLiaison": businessLiaison, //對接業務
       "uid": user.user.uid
     }
     console.log(req.session);
@@ -138,24 +144,4 @@ router.post('/check', (req, res, next) => {
     });
   }
 })
-
-function isAuthenticated(req, res, next) {
-  if (req.session && req.session.user) {
-    return next(); // 使用者已登入，繼續處理
-  }
-  return res.status(401).send({
-    status: false,
-    message: '未登入，請先登入',
-  });
-}
-
-// 範例：需要登入的路由
-router.get('/protected', isAuthenticated, (req, res) => {
-  res.status(200).send({
-    status: true,
-    message: '這是受保護的內容',
-    user: req.session.user,
-  });
-});
-
 module.exports = router;
