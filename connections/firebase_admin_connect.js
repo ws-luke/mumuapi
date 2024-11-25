@@ -1,7 +1,5 @@
 var admin = require("firebase-admin");
 
-// var serviceAccount = require("./mumu-865bc-firebase-adminsdk-kqwlv-7c9a46b093.json");
-
 const serviceAccount = {
   type: process.env.FIREBASE_TYPE,
   project_id: process.env.FIREBASE_PROJECT_ID,

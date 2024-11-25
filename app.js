@@ -6,7 +6,8 @@ const cookieParser = require('cookie-parser');
 const swaggerUi = require('swagger-ui-express');
 const swaggerDocument = require('./swagger-output.json');
 const user = require('./routes/userRoutes');
-
+const categories = require('./routes/categories');
+const product = require('./routes/productRoutes');
 app.use(session({
     secret: 'ilovemumu',
     resave: true,
@@ -23,6 +24,8 @@ app.use(express.urlencoded({ extended: true }));
 app.use(cors());
 //router
 app.use('/api/user',user);
+app.use('/api/categories',categories);
+app.use('/api/product',product);
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
