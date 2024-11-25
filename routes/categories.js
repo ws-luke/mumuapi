@@ -9,11 +9,22 @@ const firebaseAuth = firebase.auth();
 // 管理控制台
 
 //取得所有分類
-router.get('/admin/all',(req,res)=>{
-    firebaseDb.ref('/categories').once('value',(snapshot)=>{
-        console.log(snapshot.val());
-        
-    });
+router.get('/admin/all', async (req,res)=>{
+    try {
+        const categoryMenu = await firebaseDb.ref('/categories').once('value',(snapshot)=>{
+            snapshot.val()
+        });
+        res.status(200).send({
+            success: true,
+            message: '取得所有分類成功',
+            data: categoryMenu
+        });
+    } catch (error) {
+        res.status(500).send({
+            success: false,
+            message: '取得所有分類失敗', error
+        })
+    }
 });
 //新增主分類
 router.post('/admin/category', async (req,res)=>{
@@ -27,14 +38,14 @@ router.post('/admin/category', async (req,res)=>{
         });        
 
         res.status(200).send({
-            status: true,
+            success: true,
             message: '新增分類成功',
             id: key
         });
     } catch (error) {
         console.error('新增分類失敗', error);
         res.status(500).send({
-            status: false,
+            success: false,
             message: '新增分類失敗',
             error: error.message
         });
@@ -48,7 +59,7 @@ router.put('/admin/:id', async (req,res)=>{
             name: req.body.name
         })
         res.status(200).send({
-            status: true,
+            success: true,
             message: '更新分類成功'
         });
     } catch (error) {
@@ -61,31 +72,30 @@ router.delete('/admin/:id', async (req,res)=>{
         const deleteCategory = await firebaseDb.ref(`/categories/${req.params.id}`);
         deleteCategory.remove()
         res.status(200).send({
-            status: true,
+            success: true,
             message: '刪除分類成功'
         });
     } catch (error) {
         res.status(500).send({
-          status: false,
-          message: '刪除分類失敗'  
+            success: false,
+            message: '刪除分類失敗'  
         })
     }
 });
 //新增子分類
-router.post('/admin/:id/subcategories',async (req,res)=>{
+router.put('/admin/:id/subcategories', async (req,res)=>{
     try {
         const newCategory = await firebaseDb.ref(`/categories/${req.params.id}/subcategories`);
         const name = req.body.name;
         const subNameAry = [];
         await firebaseDb.ref(`/categories/${req.params.id}/subcategories`).once('value',(snapshot)=>{
-           snapshot.forEach((item)=>{
-            subNameAry.push(item.val().name);
-           })
+            snapshot.forEach((item)=>{
+                subNameAry.push(item.val().name);
+            })
         });
-
         if(subNameAry.includes(name)){
             return res.status(400).send({
-                status: false,
+                success: false,
                 message: '子分類已存在'
             });
         } else {
@@ -94,18 +104,30 @@ router.post('/admin/:id/subcategories',async (req,res)=>{
                 name: req.body.name
             })
             res.status(200).send({
-                status: true,
+                success: true,
                 message: '新增子分類成功'
             });
         }
-        
     } catch (error) {
 
     }
 });
 //更新子分類
-router.put('/admin/:id/subcategories',(req,res)=>{
+router.put('/admin/:id/subcategories/:id/subcategories', async (req,res)=>{
+    console.log(req.params);
+    
+    // try {
+    //     const editCategory = await firebaseDb.ref(`/categories/${req.params.id}/subcategories/${req.params.id}`);
+    //     editCategory.update({
+    //         name: req.body.name
+    //     })
+    //     res.status(200).send({
+    //         success: true,
+    //         message: '更新子分類成功'
+    //     });
+    // } catch (error) {
 
+    // }
 });
 //刪除子分類
 router.delete('/admin/:id/subcategories',(req,res)=>{

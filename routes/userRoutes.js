@@ -85,24 +85,24 @@ router.post('/sign_up',
     });
 
     res.status(200).send({
-      status: true,
+      success: true,
       message:'註冊帳號成功，請檢查您的電子郵件完成驗證',
     });
   }
   catch(error) {
     if(error.code === 'auth/email-already-in-use'){
       res.status(400).send({
-        status: false,
+        success: false,
         message:"電子郵件已經被使用，無法註冊相同的電子郵件"
       });
     }else if(error.code === 'auth/invalid-email'){
       res.status(401).send({
-        status: false,
+        success: false,
         message:'電子郵件格式無效'
       });
     }else if(error.code === 'auth/weak-password'){
       res.status(402).send({
-        status: false,
+        success: false,
         message:'密碼強度不足，需要更複雜的密碼'
       });
     }
@@ -135,7 +135,7 @@ router.post('/sign_in',async (req, res, next) => {
 
   if (!email || !password) {
     return res.status(400).send({
-      status: false,
+      success: false,
       message: '請提供電子郵件和密碼',
     });
   }
@@ -147,7 +147,7 @@ router.post('/sign_in',async (req, res, next) => {
       email: user.user.email
     }
     return res.status(200).send({
-      status: true,
+      success: true,
       message:'登入成功',
       uid: user.user.uid,
     })
@@ -161,7 +161,7 @@ router.post('/sign_in',async (req, res, next) => {
       errorMessage = '無效的電子郵件格式';
     }
     return res.status(400).send({
-      status: false,
+      success: false,
       message: errorMessage
     });
   }
@@ -175,7 +175,7 @@ router.post('/sign_out',async (req, res, next) => {
       }
       res.clearCookie('connect.sid'); // 清除 Session Cookie
       return res.status(200).send({ 
-        status: true,
+        success: true,
         message: '已登出' 
       });
   });
@@ -234,19 +234,22 @@ router.post('/reset_password',async (req, res, next) => {
     };  
     //發送信件  
     await transporter.sendMail(mailOptions);
-    res.status(200).json({ 
-      status: true,
+    res.status(200).send({ 
+      success: true,
       message: '密碼重設連結已成功發送' 
     });
   } catch (error) {
     console.error('密碼重設過程中發生錯誤:', error);
     if (error.code === 'auth/user-not-found') {
-      return res.status(404).json({ 
-        status: false,
+      return res.status(404).send({ 
+        success: false,
         error: '找不到該用戶的電子郵件' 
       });
     }
-    res.status(500).json({ error: '無法發送密碼重設電子郵件，請稍後再試' });
+    res.status(500).send({ 
+      success: false,
+      error: '無法發送密碼重設電子郵件，請稍後再試' 
+    });
   }
 })
 
