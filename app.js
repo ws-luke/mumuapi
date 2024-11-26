@@ -1,5 +1,8 @@
 const express = require('express');
 const app = express();
+
+const { verifyToken, verifyAdmin } = require('./middleware/auth'); // 引入中介層
+
 const cors = require('cors');
 const session = require('express-session');
 const cookieParser = require('cookie-parser');
@@ -8,8 +11,10 @@ const swaggerDocument = require('./swagger-output.json');
 const user = require('./routes/userRoutes');
 const categories = require('./routes/categories');
 const product = require('./routes/productRoutes');
+const adminRoutes = require('./routes/admin');
+
 app.use(session({
-    secret: 'ilovemumu',
+    secret: 'iLoveMuMu',
     resave: true,
     saveUninitialized: true,
     cookie: { 
@@ -26,6 +31,9 @@ app.use(cors());
 app.use('/api/user',user);
 app.use('/api/categories',categories);
 app.use('/api/products',product);
+
+app.use('/api/admin', verifyAdmin, adminRoutes);
+
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
