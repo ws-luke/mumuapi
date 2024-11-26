@@ -25,7 +25,7 @@ app.use(cors());
 //router
 app.use('/api/user',user);
 app.use('/api/categories',categories);
-app.use('/api/product',product);
+app.use('/api/products',product);
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
