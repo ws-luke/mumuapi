@@ -33,6 +33,7 @@ router.post('/category', async (req,res)=>{
         await categoryIdUrl.set({
             id: key,
             name: req.body.name,
+            is_enabled: req.body.is_enabled,
             subcategories: req.body.subcategories || ""
         });        
 
@@ -54,9 +55,7 @@ router.post('/category', async (req,res)=>{
 router.put('/:categoryId', async (req,res)=>{
     try {
         const categoryRef = firebaseDb.ref('categories').child(req.params.categoryId);
-        await categoryRef.update({
-            name: req.body.name
-        })
+        await categoryRef.update(req.body);
         res.status(200).send({
             success: true,
             message: '更新分類成功'
@@ -104,6 +103,7 @@ router.post('/:categoryId/subcategories', async (req,res)=>{
                 await newSubcategoryRef.set({
                     id: newSubcategoryRef.key, // 儲存自動生成的唯一 ID
                     name: req.body.name, // 子分類名稱
+                    is_enabled: req.body.is_enabled,
                 });
                 res.status(200).send({
                     success: true,
@@ -124,9 +124,7 @@ router.post('/:categoryId/subcategories', async (req,res)=>{
 router.put('/:categoryId/subcategories', async (req,res)=>{
     try {
         const categoryRef = await firebaseDb.ref(`categories/${req.params.categoryId}/subcategories`).child(req.body.id);
-        await categoryRef.update({
-            name: req.body.name
-        })
+        await categoryRef.update(req.body);
         res.status(200).send({
             success: true,
             message: '更新子分類成功'
@@ -159,28 +157,28 @@ router.delete('/:categoryId/subcategories', async (req,res)=>{
 });
 
 
-
 const getProductRef = (id) => firebaseDb.ref('products').child(id);
 // 新增商品
 router.post('/product', async (req,res)=>{
     try {
         const productsRef = await firebaseDb.ref('products');
         const newProductRef = productsRef.push();
+        const {productCode,category,title,weight,warranty,material,origin_price,price,unit,description,content,is_enabled,num,} = req.body;
         const data = {
             id: newProductRef.key,
-            productCode: '商品編號',
-            category: '分類',
-            title: '商品名稱',
-            weight: '商品重量',
-            warranty: '保固',
-            material: '材質',
-            origin_price: '原價',
-            price: '售價',
-            unit: '單位',
-            description: '商品描述',
-            content: '商品內容',
-            is_enabled: '是否啟用',
-            num: '商品數量',
+            productCode,
+            category,
+            title,
+            weight,
+            warranty,
+            material,
+            origin_price,
+            price,
+            unit,
+            description,
+            content,
+            is_enabled,
+            num,
             imageUrl: '主圖網址',
             imagesUrl: [
                 "圖片網址一",
@@ -258,8 +256,5 @@ router.delete('/product/:id', async (req,res)=>{
         });
     }
 })
-
-
-
 
 module.exports = router;

@@ -6,7 +6,6 @@ const admin = require('../connections/firebase_admin_connect'); // 資料庫模�
 const firebaseDb = admin.database();
 const firebaseAdminAuth = admin.auth();
 const firebaseAuth = firebase.auth();
-const { v4: uuidv4 } = require('uuid'); // 生成驗證 token
 const nodemailer = require('nodemailer'); // 寄信
 //註冊帳號  post
 router.post('/sign_up',
@@ -30,30 +29,26 @@ router.post('/sign_up',
   } */
   async (req, res, next) => {
   try {
-    // const { email, password, phoneNumber, userName, companyName, address, salesChannels, ubn, businessLiaison } = req.body;
     const user = await firebaseAuth.createUserWithEmailAndPassword(req.body.email, req.body.password)
-    // 生成驗證 token
-    const verificationToken = uuidv4();
-    
+
     req.session.email = req.body.email;
     req.session.password = req.body.password;
     req.session.uid = user.user.uid;
     
-    const saveUser = {
-      "email":req.body.email, //信箱
-      "userName":req.body.userName, //姓名
-      "companyName":req.body.companyName, //公司名稱
-      "phoneNumber":req.body.phoneNumber, //手機號碼
-      "address":req.body.address, //地址
-      "salesChannels":req.body.salesChannels, // 賣場通路
-      "ubn":req.body.ubn, //統編
-      "businessLiaison":req.body.businessLiaison, //對接業務
-      "uid": user.user.uid,
-      "verificationToken":verificationToken,
-      "verified": false, // 設定為未驗證
-      "createdAt": new Date(),
-    }
-    firebaseDb.ref('/user/' + user.user.uid).set(saveUser);
+    firebaseDb.ref('/user/' + user.user.uid).set({
+      email:req.body.email, //信箱
+      userName:req.body.userName, //姓名
+      companyName:req.body.companyName, //公司名稱
+      phoneNumber:req.body.phoneNumber, //手機號碼
+      address:req.body.address, //地址
+      salesChannels:req.body.salesChannels, // 賣場通路
+      ubn:req.body.ubn, //統編
+      businessLiaison:req.body.businessLiaison, //對接業務
+      uid: user.user.uid,
+      role: 'user', //預設為一般用戶
+      verified: false, // 設定為未驗證
+      createdAt: new Date(),
+    });
     const transporter = nodemailer.createTransport({
       service: 'gmail',
       port: 465, // Gmail 建議使用 465 (SSL)
@@ -66,7 +61,7 @@ router.post('/sign_up',
       debug: true,  // 顯示 debug 資訊
     });
     await transporter.verify();
-    const verificationUrl = `http://127.0.0.1:3000/api/user/verify?uid=${user.user.uid}&token=${verificationToken}`;
+    const verificationUrl = `http://127.0.0.1:3000/api/user/verify?uid=${user.user.uid}`;
     const mailOptions = {
       from: process.env.GMAIL_USER,
       to: req.body.email,
@@ -111,18 +106,17 @@ router.post('/sign_up',
 
 //驗證電子郵件
 router.get('/verify', async (req, res) => {
-  const { uid, token } = req.query;
-  if(!uid || !token){
+  const { uid } = req.query;
+  if(!uid){
     return res.status(400).send('驗證連結無效或已過期');
   }
   try {
-    const userRouter = await firebaseDb.ref('/user/' + uid);
-    const userToken = await userRouter.child('verificationToken').once('value');
-    if(userToken.val() === token){
+    const userUid = await firebaseDb.ref('/user').child(uid).once('value');
+    const uidSnapshot = userUid.val()
+    if(uidSnapshot.uid === uid){
       firebaseDb.ref('/user/' + uid + '/verified').set(true);
-      firebaseDb.ref('/user/' + uid + '/verificationToken').set(null);
     }
-    res.send('驗證成功，您現在可以登入');
+    res.send('驗證成功，您現在可以登入，並關閉此視窗');
   } catch (error) {
     console.error('驗證錯誤:', error);
     res.status(500).send('伺服器錯誤');
