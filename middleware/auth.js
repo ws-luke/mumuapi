@@ -21,12 +21,9 @@ async function verifyToken(req, res, next) {
 // 驗證管理者 Token
 async function verifyAdmin(req, res, next) {
   const token = req.headers.authorization?.split(' ')[1];
-  console.log(token);
-  
   if (!token) {
     return res.status(403).send({ success: false, message: '無權限' });
   }
-
   try {
     const decodedToken = await firebaseAdminAuth.verifyIdToken(token);
     if (decodedToken.admin) {

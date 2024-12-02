@@ -11,7 +11,7 @@ const swaggerDocument = require('./swagger-output.json');
 const user = require('./routes/userRoutes');
 const categories = require('./routes/categories');
 const product = require('./routes/productRoutes');
-const admin = require('./routes/adminUserRouter');
+const adminUserRouter = require('./routes/adminUserRouter');
 const adminRoutes = require('./routes/adminRouter');
 
 app.use(session({
@@ -32,8 +32,8 @@ app.use(cors());
 app.use('/api/user',user);
 app.use('/api/categories',categories);
 app.use('/api/products',product);
-app.use('/api/admin',admin);
 
+app.use('/api/admin', adminUserRouter);
 app.use('/api/admin', verifyAdmin, adminRoutes);
 
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));

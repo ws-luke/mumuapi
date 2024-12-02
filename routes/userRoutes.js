@@ -30,12 +30,11 @@ router.post('/sign_up',
   async (req, res, next) => {
   try {
     const user = await firebaseAuth.createUserWithEmailAndPassword(req.body.email, req.body.password)
-
     req.session.email = req.body.email;
     req.session.password = req.body.password;
     req.session.uid = user.user.uid;
     
-    firebaseDb.ref('/user/' + user.user.uid).set({
+    firebaseDb.ref('/users/' + user.user.uid).set({
       email:req.body.email, //信箱
       userName:req.body.userName, //姓名
       companyName:req.body.companyName, //公司名稱
@@ -111,10 +110,10 @@ router.get('/verify', async (req, res) => {
     return res.status(400).send('驗證連結無效或已過期');
   }
   try {
-    const userUid = await firebaseDb.ref('/user').child(uid).once('value');
+    const userUid = await firebaseDb.ref('/users').child(uid).once('value');
     const uidSnapshot = userUid.val()
     if(uidSnapshot.uid === uid){
-      firebaseDb.ref('/user/' + uid + '/verified').set(true);
+      firebaseDb.ref('/users/' + uid + '/verified').set(true);
     }
     res.send('驗證成功，您現在可以登入，並關閉此視窗');
   } catch (error) {
