@@ -13,7 +13,6 @@ const categoryRoutes = require('./routes/categoryRoutes'); // 分類
 const product = require('./routes/productRoutes'); // 產品
 const orderRoutes = require('./routes/orderRoutes'); // 訂單
 const adminUserRouter = require('./routes/adminUserRouter');
-const adminRoutes = require('./routes/adminRouter');
 
 app.use(session({
     secret: 'iLoveMuMu',
@@ -36,7 +35,6 @@ app.use('/api/products', product); // 產品
 app.use('/api/orders',orderRoutes); // 訂單
 
 app.use('/api/admin', adminUserRouter);
-app.use('/api/admin', verifyAdmin, adminRoutes);
 
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 const PORT = process.env.PORT || 3000;

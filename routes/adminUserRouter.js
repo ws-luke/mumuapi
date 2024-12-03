@@ -6,7 +6,6 @@ const firebaseDb = admin.database();
 const firebaseAdminAuth = admin.auth();
 const firebaseAuth = firebase.auth();
 
-
 //管理員註冊 
 router.post('/sign_up', async (req, res, next) => {
     try {
@@ -94,4 +93,23 @@ router.post('/sign_in',async (req, res, next) => {
     }
 })
 
+// 獲取所有用戶資訊
+router.get('/users', async (req, res) => {
+  // 回傳用戶列表
+  try {
+    const snapshot = await firebaseDb.ref('/user').once('value');
+    const users = snapshot.val();
+    res.status(200).send({
+      success: true,
+      message: '取得用戶列表成功',
+      data: users     
+    })
+  } catch (error) {
+
+  }
+});
+// 刪除用戶
+router.delete('/users/:uid', async (req, res) => {
+    // 刪除用戶邏輯
+});
 module.exports = router;
