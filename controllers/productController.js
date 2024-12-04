@@ -13,13 +13,13 @@ getProducts = async (req,res) => {
         if(startAt) query = query.startAt(startAt);
         const snapshot = await query.once('value');
         const data = snapshot.val();
-        res.status(200).send({
+        res.status(200).json({
             success: true,
             message: '取得商品列表成功',
             data
         })
     } catch (error) {
-        res.status(500).send({
+        res.status(500).json({
             success: false,
             message: '取得商品列表失敗',
             error: error.message,
@@ -32,15 +32,15 @@ getProduct = async (req,res) => {
         const snapshot = await getProductRef(req.params.id).once('value');
         const data = snapshot.val();
         if (!data) {
-            return res.status(404).send({ success: false, message: '商品不存在' });
+            return res.status(404).json({ success: false, message: '商品不存在' });
         }
-        res.status(200).send({
+        res.status(200).json({
             success: true,
             message: '取得商品成功',
             data
         });
     } catch (error) {
-        res.status(500).send({
+        res.status(500).json({
             success: false,
             message: '取得商品失敗',
             error: error.message,
@@ -99,12 +99,12 @@ createProduct = async (req,res)=>{
             updatedAt: format(new Date(),'yyyy-MM-dd'),
         };
         await productsRef.child(newProductRef.key).set(data);
-        res.status(200).send({
+        res.status(200).json({
             success: true,
             message: '新增商品成功',
         });
     } catch (error) {
-        res.status(500).send({
+        res.status(500).json({
             success: false,
             message: '新增商品失敗',
             error: error.message,
@@ -116,12 +116,12 @@ updateProduct = async (req,res)=>{
     try {
         const productsRef = await getProductRef(req.params.id);
         await productsRef.update(req.body);
-        res.status(200).send({
+        res.status(200).json({
             success: true,
             message: '更新商品成功',
         });
     } catch (error) {
-        res.status(500).send({
+        res.status(500).json({
             success: false,
             message: '更新商品失敗',
             error: error.message,
@@ -133,12 +133,12 @@ deleteProduct = async (req,res)=>{
     try {
         const productsRef = await getProductRef(req.params.id);
         await productsRef.remove();
-        res.status(200).send({
+        res.status(200).json({
             success: true,
             message: '刪除商品成功',
         });
     } catch (error) {
-        res.status(500).send({
+        res.status(500).json({
             success: false,
             message: '刪除商品失敗',
             error: error.message,

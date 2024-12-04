@@ -1,11 +1,14 @@
 const express = require('express');
 const router = express.Router();
-const { createOrder, getOrder, getUserOrders, updateOrderStatus, deleteOrder } = require('../controllers/orderController');
+const { createOrder, getUserOrder, getUserOrders, updateOrderStatus, deleteOrder,getOrders } = require('../controllers/orderController');
 
-router.post('/all', createOrder); // 建立訂單
-router.get('/:orderId', getOrder); // 讀取特定訂單
-router.get('/users/:userId/orders', getUserOrders); // 讀取使用者訂單
-router.put('/:orderId/status', updateOrderStatus); // 更新訂單狀態
+// 前台使用
+router.post('/order', createOrder); // 建立訂單
+router.get('/:userId/orders', getUserOrders); // 讀取使用者所有訂單
+router.get('/:userId/orders/:orderId', getUserOrder); // 讀取使用者特定訂單
+//後台使用
+router.get('/', getOrders); // 讀取所有訂單
+router.put('/:orderId', updateOrderStatus); // 更新訂單狀態
 router.delete('/:orderId', deleteOrder); // 刪除訂單
 
 module.exports = router;

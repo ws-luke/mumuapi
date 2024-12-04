@@ -1,5 +1,6 @@
 require('dotenv').config();
 const admin = require('../connections/firebase_admin_connect'); // 資料庫模組
+const firebase = require('../connections/firebase_connect'); // 資料庫模組
 const firebaseDb = admin.database();
 const firebaseAdminAuth = admin.auth();
 const firebaseAuth = firebase.auth();
@@ -57,24 +58,24 @@ signUp = async (req, res, next) => {
         }
       });
   
-      res.status(200).send({
+      res.status(200).json({
         success: true,
         message:'註冊帳號成功，請檢查您的電子郵件完成驗證',
       });
     }
     catch(error) {
       if(error.code === 'auth/email-already-in-use'){
-        res.status(400).send({
+        res.status(400).json({
           success: false,
           message:"電子郵件已經被使用，無法註冊相同的電子郵件"
         });
       }else if(error.code === 'auth/invalid-email'){
-        res.status(401).send({
+        res.status(401).json({
           success: false,
           message:'電子郵件格式無效'
         });
       }else if(error.code === 'auth/weak-password'){
-        res.status(402).send({
+        res.status(402).json({
           success: false,
           message:'密碼強度不足，需要更複雜的密碼'
         });
@@ -106,7 +107,7 @@ signIn = async (req, res, next) => {
 const { email, password } = req.body;
 
 if (!email || !password) {
-    return res.status(400).send({
+    return res.status(400).json({
     success: false,
     message: '請提供電子郵件和密碼',
     });
@@ -118,7 +119,7 @@ try {
     uid: user.user.uid,
     email: user.user.email
     }
-    return res.status(200).send({
+    return res.status(200).json({
     success: true,
     message:'登入成功',
     uid: user.user.uid,
@@ -132,7 +133,7 @@ try {
     } else if (error.code === 'auth/invalid-email') {
     errorMessage = '無效的電子郵件格式';
     }
-    return res.status(400).send({
+    return res.status(400).json({
     success: false,
     message: errorMessage
     });
@@ -146,7 +147,7 @@ req.session.destroy(err => {
         return res.status(500).json({ message: 'Logout failed' });
     }
     res.clearCookie('connect.sid'); // 清除 Session Cookie
-    return res.status(200).send({ 
+    return res.status(200).json({ 
         success: true,
         message: '已登出' 
     });
@@ -158,18 +159,18 @@ checkOnline = async (req, res, next) => {
 try {
     // 檢查是否有有效的 session
     if (req.session && req.session.user) {
-    return res.status(200).send({
+    return res.status(200).json({
         success: true,
         message: "用戶仍在登入狀態"
     });
     } else {
-    return res.status(401).send({
+    return res.status(401).json({
         success: false,
         message: "請重新登入"
     });
     }
 } catch (error) {
-    res.status(500).send({
+    res.status(500).json({
     success: false,
     message: "伺服器錯誤，請稍後再試"
     });
@@ -180,7 +181,7 @@ try {
 resetPassword = async (req, res, next) => {
 const { email } = req.body;  
 if (!email) {
-    return res.status(400).send({ error: 'Email is required' });
+    return res.status(400).json({ error: 'Email is required' });
 }
 try {
     //firebase重設密碼連結方法
@@ -206,19 +207,19 @@ try {
     };  
     //發送信件  
     await transporter.sendMail(mailOptions);
-    res.status(200).send({ 
+    res.status(200).json({ 
     success: true,
     message: '密碼重設連結已成功發送' 
     });
 } catch (error) {
     console.error('密碼重設過程中發生錯誤:', error);
     if (error.code === 'auth/user-not-found') {
-    return res.status(404).send({ 
+    return res.status(404).json({ 
         success: false,
         error: '找不到該用戶的電子郵件' 
     });
     }
-    res.status(500).send({ 
+    res.status(500).json({ 
     success: false,
     error: '無法發送密碼重設電子郵件，請稍後再試' 
     });
