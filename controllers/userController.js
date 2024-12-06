@@ -5,6 +5,7 @@ const firebaseDb = admin.database();
 const firebaseAdminAuth = admin.auth();
 const firebaseAuth = firebase.auth();
 const nodemailer = require('nodemailer'); // 寄信
+const { format } = require('date-fns');
 
 //註冊帳號  post
 signUp = async (req, res, next) => {
@@ -26,7 +27,8 @@ signUp = async (req, res, next) => {
         uid: user.user.uid,
         role: 'user', //預設為一般用戶
         verified: false, // 設定為未驗證
-        createdAt: new Date(),
+        myOrders: '',
+        createdAt: format(new Date(),'yyyy-MM-dd hh:mm:ss'),
       });
       const transporter = nodemailer.createTransport({
         service: 'gmail',

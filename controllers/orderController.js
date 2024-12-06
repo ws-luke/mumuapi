@@ -15,23 +15,28 @@ Failed	訂單失敗（可能是付款失敗或其他原因）。
 */
 // 訂單總路徑
 const ordersRef = firebaseDb.ref('orders');
-
+// 使用者總路徑
+const usersRef = firebaseDb.ref('users');
 
 // 建立訂單
 createOrder = async (req, res) => {
     try {
+        const userUid = req.body.uid; // 前端傳送會員ID
+        const userSnapshot = await usersRef.child(userUid).once('value'); // 會員資料快照
+        const user = userSnapshot.val(); // 會員資料
         const newOrderRef = ordersRef.push();
-        const orderId = newOrderRef.key;
-        const createdAt = format(new Date(),'yyyy-MM-dd hh:mm:ss');
+        const orderId = newOrderRef.key; //訂單ID
+        const createdAt = format(new Date(),'yyyy-MM-dd HH:mm:ss'); // 更新訂單時間
+
         const order = {
             orderId,
             user: {
-                address: "地址",
-                email: "信箱",
-                userName: "會員名稱",
-                phoneNumber: "手機號碼",
-                uid: "會員ID",
-                companyName: "公司名稱"
+                address: user.address,
+                email: user.email,
+                userName: user.userName,
+                phoneNumber: user.phoneNumber,
+                uid: userUid,
+                companyName: user.companyName
             },
             products:{
                 L8nBrq8Ym4ARI1Kog4t:{
@@ -57,9 +62,10 @@ createOrder = async (req, res) => {
             },
             orderNotes: "訂單備註",
             status: "訂單已建立但未處理",
-            createdAt,
+            createdAt
         }
         await newOrderRef.set(order);
+        usersRef.child(userUid).child('myOrders').push(orderId); // 找到會員的訂單位置，並將新訂單的編號輸入進去
         res.status(200).json({
             success: true,
             message: "已建立訂單",
@@ -77,9 +83,36 @@ createOrder = async (req, res) => {
 // 讀取使用者訂單
 getUserOrders = async (req, res) => {
     try {
+        //先查詢會員本身的訂單編號
+        const userUid = req.params.uid;
+        const userSnapshot = await usersRef.child(userUid).once('value'); // 會員資料快照
+        const user = userSnapshot.val(); // 會員資料
+        
+        const userMyOrders = user.myOrders;
+        const orders = []; // 放該會員的訂單編號
+        Object.values(userMyOrders).forEach((orderId) => {
+            orders.push(orderId);
+        })
+        console.log(orders);
+        
+        // 再從所有訂單裡挑選該會員的訂單
+        const ordersSnapshot = await ordersRef.once('value');
+        const allOrders = ordersSnapshot.val(); // 所有訂單資料
+        // console.log(allOrders[]);
+        
+        const userOrders = orders.map((orderId) => {
+            const order = allOrders[orders];
+            return order;
+            // console.log(allOrders[orderId]);
+            
+        })
+        // console.log(userOrders);
+        
+
     } catch (error) {
     }
-}// 讀取使用者特定訂單
+}
+// 讀取使用者特定訂單
 getUserOrder = async (req, res) => {
     try {
     } catch (error) {
@@ -110,10 +143,58 @@ getOrders = async (req, res) => {
     } catch (error) {
     }
 }
-// 更新訂單狀態
+// 更新訂單
 updateOrderStatus = async (req, res) => {
     try {
+        const orderId = req.params.orderId; // 從路徑參數獲取 orderId
+        const newStatus = req.body.status; // 從body獲取新狀態
+
+        // 確認有提供狀態
+        if (!newStatus) {
+            return res.status(400).json({
+                success: false,
+                message: "請提供有效的狀態值"
+            });
+        }
+
+        // 取得所有訂單的快照
+        const snapshot = await ordersRef.once('value');
+        const allOrders = snapshot.val();
+        const existingOrder = allOrders[orderId]; // 根據 orderId 找到對應的訂單
+        const updatedAt = format(new Date(),'yyyy-MM-dd HH:mm:ss');
+
+        // 檢查訂單是否存在
+        if (!existingOrder) {
+            return res.status(404).json({
+                success: false,
+                message: "查無訂單編號"
+            });
+        }
+
+        // 更新訂單狀態
+        await ordersRef.child(orderId).update({
+            status: newStatus,
+            updatedAt
+        });
+
+        // 回傳成功回應
+        return res.status(200).json({
+            success: true,
+            message: "更新訂單狀態成功",
+            order: {
+                orderId,
+                status: newStatus,
+                updatedAt
+            }
+        });
+
     } catch (error) {
+        // 處理錯誤
+        console.error("更新訂單狀態時發生錯誤：", error);
+        return res.status(500).json({
+            success: false,
+            message: "伺服器發生錯誤，請稍後再試"
+        });
     }
 }
 // 刪除訂單
