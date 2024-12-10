@@ -1,8 +1,6 @@
-const { log } = require('console');
 const admin = require('../connections/firebase_admin_connect'); // 資料庫模組
 const firebaseDb = admin.database();
 const { format } = require('date-fns');
-const util = require('util');
 // 訂單狀態
 /* 
 Pending	訂單已建立但未處理。
@@ -22,22 +20,12 @@ const usersRef = firebaseDb.ref('users');
 createOrder = async (req, res) => {
     try {
         const userUid = req.body.uid; // 前端傳送會員ID
-        const userSnapshot = await usersRef.child(userUid).once('value'); // 會員資料快照
-        const user = userSnapshot.val(); // 會員資料
         const newOrderRef = ordersRef.push();
         const orderId = newOrderRef.key; //訂單ID
         const createdAt = format(new Date(),'yyyy-MM-dd HH:mm:ss'); // 更新訂單時間
 
         const order = {
             orderId,
-            user: {
-                address: user.address,
-                email: user.email,
-                userName: user.userName,
-                phoneNumber: user.phoneNumber,
-                uid: userUid,
-                companyName: user.companyName
-            },
             products:{
                 L8nBrq8Ym4ARI1Kog4t:{
                     id: "L8nBrq8Ym4ARI1Kog4t",
@@ -93,29 +81,54 @@ getUserOrders = async (req, res) => {
         Object.values(userMyOrders).forEach((orderId) => {
             orders.push(orderId);
         })
-        console.log(orders);
         
         // 再從所有訂單裡挑選該會員的訂單
         const ordersSnapshot = await ordersRef.once('value');
         const allOrders = ordersSnapshot.val(); // 所有訂單資料
-        // console.log(allOrders[]);
         
         const userOrders = orders.map((orderId) => {
-            const order = allOrders[orders];
-            return order;
-            // console.log(allOrders[orderId]);
+            const order = allOrders[orderId];
+            return order ? { orderId, ...order } : null;
             
-        })
-        // console.log(userOrders);
+        }).filter(order => order !== null);
         
-
+        res.status(200).json({
+            success: true,
+            message: "取得使用者訂單成功",
+            user,
+            orders: userOrders
+        });
     } catch (error) {
     }
 }
 // 讀取使用者特定訂單
 getUserOrder = async (req, res) => {
     try {
+        const { orderId } = req.params;
+        const orderSnapshot = await ordersRef.child(orderId).once('value');
+        const order = orderSnapshot.val();
+
+        if(!order) {
+            return res.status(404).json({
+                success: false,
+                message: "訂單不存在"
+            });
+        }
+
+        res.status(200).json({
+            success: true,
+            message: "取得使用者特定訂單成功",
+            order:{
+                orderId,
+                ...order
+            }
+        });
     } catch (error) {
+        console.error('讀取訂單時出現錯誤:', error);
+        res.status(500).json({
+            success: false,
+            message: '伺服器發生錯誤，請稍後再試'
+        });
     }
 }
 
