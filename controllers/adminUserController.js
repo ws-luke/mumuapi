@@ -158,10 +158,35 @@ deleteUser = async (req, res) => {
         });
       }
 }
-
+//刪除管理員
+deleteAdmin = async (req, res) => {
+  const uid = req.params.uid;
+  try{
+      if(!uid) {
+        return res.status(400).json({
+          success: false,
+          message: '請提供管理員 ID'
+        });
+      }
+      
+      await firebaseAdminAuth.deleteUser(uid); // 刪除Authentication用戶
+      await adminsRef.child(uid).remove(); // 刪除資料庫用戶
+      
+      res.status(200).json({
+        success: true,
+        message: `管理員資料與相關數據成功刪除 (UID: ${uid})`
+      });
+    } catch(error) {
+      res.status(500).json({
+        success: false,
+        message: '刪除管理員失敗',
+      });
+    }
+}
 module.exports = {
     adminSignUp,
     adminSignIn,
     getUsers,
-    deleteUser
+    deleteUser,
+    deleteAdmin
 }

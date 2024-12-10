@@ -3,8 +3,8 @@ const router = express.Router();
 const { signUp, verifyEmail, signIn, signOut, checkOnline, resetPassword } = require('../controllers/userController');
 //註冊帳號  post
 router.post('/sign_up',
-  /* 	#swagger.tags = ['User']
-        #swagger.description = '註冊帳號' */
+  /* 	#swagger.tags = ['使用者']
+        #swagger.description = '使用者 - 註冊帳號' */
   /* #swagger.responses[200] = { 
     schema:{
         "username": "example@test.com",
@@ -25,18 +25,33 @@ router.post('/sign_up',
 );
 
 //驗證電子郵件
-router.get('/verify', verifyEmail);
+router.get('/verify',
+  /* 	#swagger.tags = ['使用者']
+        #swagger.description = '使用者 - 信箱驗證' */
+  verifyEmail);
 
 //登入帳號  post
-router.post('/sign_in', signIn);
+router.post('/sign_in',
+  /* 	#swagger.tags = ['使用者']
+        #swagger.description = '使用者 - 登入' */
+  signIn);
 
 //登出帳號  post
-router.post('/sign_out', signOut);
+router.post('/sign_out', 
+  /* 	#swagger.tags = ['使用者','管理者']
+        #swagger.description = '使用者 - 登出' */
+  signOut);
 
 //檢查用戶是否持續登入 
-router.post('/check', checkOnline);
+router.post('/check', 
+  /* 	#swagger.tags = ['使用者']
+        #swagger.description = '使用者 - 檢查狀態' */
+  checkOnline);
 
 //忘記密碼
-router.post('/reset_password', resetPassword);
+router.post('/reset_password', 
+  /* 	#swagger.tags = ['使用者']
+        #swagger.description = '使用者 - 忘記密碼' */
+  resetPassword);
 
 module.exports = router;

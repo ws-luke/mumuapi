@@ -158,25 +158,25 @@ req.session.destroy(err => {
 
 //檢查用戶是否持續登入 
 checkOnline = async (req, res, next) => {
-try {
-    // 檢查是否有有效的 session
-    if (req.session && req.session.user) {
-    return res.status(200).json({
-        success: true,
-        message: "用戶仍在登入狀態"
-    });
-    } else {
-    return res.status(401).json({
-        success: false,
-        message: "請重新登入"
-    });
-    }
-} catch (error) {
-    res.status(500).json({
-    success: false,
-    message: "伺服器錯誤，請稍後再試"
-    });
-}
+  try {
+      // 檢查是否有有效的 session
+      if (req.session && req.session.user) {
+      return res.status(200).json({
+          success: true,
+          message: "用戶仍在登入狀態"
+      });
+      } else {
+      return res.status(401).json({
+          success: false,
+          message: "請重新登入"
+      });
+      }
+  } catch (error) {
+      res.status(500).json({
+      success: false,
+      message: "伺服器錯誤，請稍後再試"
+      });
+  }
 }
 
 //忘記密碼

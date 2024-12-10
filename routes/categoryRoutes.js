@@ -10,20 +10,48 @@ const {
     deleteCreateSubcategory
 } = require('../controllers/categoryController');
 
+const { verifyAdmin } = require('../middleware/auth'); // 引入中介層
 
-//取得主分類
-router.get('/all', getCreateCategory);
-//新增主分類
-router.post('/category', createCategory);
-//更新主分類
-router.put('/:categoryId', updateCreateCategory);
-//刪除主分類
-router.delete('/:categoryId', deleteCreateCategory);
-//新增子分類
-router.post('/:categoryId/subcategories', createSubcategory);
-//更新子分類
-router.put('/:categoryId/subcategories', updateCreateSubcategory);
-//刪除子分類
-router.delete('/:categoryId/subcategories', deleteCreateSubcategory);
+//取得選單
+router.get('/all', 
+    /* 	#swagger.tags = ['管理者 - 選單']
+        #swagger.description = '取得選單' */
+    getCreateCategory);
+//新增主選單
+router.post('/category', 
+    /* 	#swagger.tags = ['管理者 - 選單']
+        #swagger.description = '新增主選單' */
+    verifyAdmin,
+    createCategory);
+//更新主選單
+router.put('/:categoryId', 
+    /* 	#swagger.tags = ['管理者 - 選單']
+        #swagger.description = '更新主選單' */
+    verifyAdmin,
+    updateCreateCategory);
+//刪除主選單
+router.delete('/:categoryId', 
+    /* 	#swagger.tags = ['管理者 - 選單']
+        #swagger.description = '刪除主選單' */
+    verifyAdmin,
+    deleteCreateCategory);
+//新增子選單
+router.post('/:categoryId/subcategories', 
+    /* 	#swagger.tags = ['管理者 - 選單']
+        #swagger.description = '新增子選單' */
+    verifyAdmin,
+    createSubcategory);
+//更新子選單
+router.put('/:categoryId/subcategories', 
+    /* 	#swagger.tags = ['管理者 - 選單']
+        #swagger.description = '更新子選單' */
+    verifyAdmin,
+    updateCreateSubcategory);
+//刪除子選單
+router.delete('/:categoryId/subcategories', 
+    /* 	#swagger.tags = ['管理者 - 選單']
+        #swagger.description = '刪除子選單' */
+    verifyAdmin,
+    deleteCreateSubcategory);
 
 module.exports = router;

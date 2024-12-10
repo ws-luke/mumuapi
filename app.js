@@ -1,8 +1,5 @@
 const express = require('express');
 const app = express();
-
-const { verifyToken, verifyAdmin } = require('./middleware/auth'); // 引入中介層
-
 const cors = require('cors');
 const session = require('express-session');
 const cookieParser = require('cookie-parser');
