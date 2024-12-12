@@ -5,6 +5,7 @@ const {
     getCreateCategory,
     updateCreateCategory,
     deleteCreateCategory,
+    getSubcategory,
     createSubcategory,
     updateCreateSubcategory,
     deleteCreateSubcategory
@@ -14,7 +15,7 @@ const { verifyAdmin } = require('../middleware/auth'); // 引入中介層
 
 //取得選單
 router.get('/all', 
-    /* 	#swagger.tags = ['管理者 - 選單']
+    /* 	#swagger.tags = ['使用者 - 選單','管理者 - 選單']
         #swagger.description = '取得選單' */
     getCreateCategory);
 //新增主選單
@@ -35,6 +36,14 @@ router.delete('/:categoryId',
         #swagger.description = '刪除主選單' */
     verifyAdmin,
     deleteCreateCategory);
+
+//取得子選單
+router.get('/:categoryId/subcategories', 
+    /* 	#swagger.tags = ['使用者 - 選單','管理者 - 選單']
+        #swagger.description = '取得子選單' */
+    verifyAdmin,
+    getSubcategory);
+
 //新增子選單
 router.post('/:categoryId/subcategories', 
     /* 	#swagger.tags = ['管理者 - 選單']

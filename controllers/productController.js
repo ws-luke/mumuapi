@@ -47,56 +47,30 @@ getProduct = async (req,res) => {
         });
     }
 }
-// 新增商品
+//新增商品
 createProduct = async (req,res)=>{
     try {
         const productsRef = await firebaseDb.ref('products');
         const newProductRef = productsRef.push();
-        const {productCode,category,title,weight,warranty,material,origin_price,price,unit,description,content,is_enabled,num,} = req.body;
+        const productData = req.body;
         const data = {
             id: newProductRef.key,
-            productCode,
-            category,
-            title,
-            weight,
-            warranty,
-            material,
-            origin_price,
-            price,
-            unit,
-            description,
-            content,
-            is_enabled,
-            num,
-            imageUrl: '主圖網址',
-            imagesUrl: [
-                "圖片網址一",
-                "圖片網址二",
-                "圖片網址三",
-                "圖片網址四",
-                "圖片網址五"
-            ],
-            specifications: [
-                {
-                    name: '尺寸',
-                    options: [
-                        {
-                            value: '1m',
-                            quantity: 200,
-                        },
-                        {
-                            value: '1.2m',
-                            quantity: 300,
-                        },
-                        {
-                            value: '1.5m',
-                            quantity: 500,
-                        },
-                    ],
-                },
-            ],
-            createdAt: format(new Date(),'yyyy-MM-dd'),
-            updatedAt: format(new Date(),'yyyy-MM-dd'),
+            title: productData.title,
+            weight: productData.weight,
+            material: productData.material,
+            warranty: productData.warranty,
+            origin_price: productData.origin_price, // 原價
+            price: productData.price, // 售價
+            unit: productData.unit, // 單位
+            is_enabled: productData.is_enabled, // 是否上架
+            is_stock: productData.is_stock, // 庫存
+            category: productData.category, // 分類
+            subcategory: productData.subcategory, // 子分類
+            productVariants: productData.productVariants,
+            // imageUrl: productData.imageUrl,
+            // imagesUrl: productData.imagesUrl,
+            createdAt: format(new Date(),'yyyy-MM-dd HH:mm:ss'),
+            updatedAt: format(new Date(),'yyyy-MM-dd HH:mm:ss'),
         };
         await productsRef.child(newProductRef.key).set(data);
         res.status(200).json({

@@ -1,10 +1,13 @@
 
 const admin = require('../connections/firebase_admin_connect'); // 資料庫模組
 const firebaseDb = admin.database();
+
+const categoriesRef = firebaseDb.ref('categories');
+
 //新增主分類
 createCategory = async (req,res) => {
     try {
-        const key = firebaseDb.ref('/categories').push().key;
+        const key = categoriesRef.push().key;
         const categoryIdUrl = firebaseDb.ref('/categories/' + key);
         await categoryIdUrl.set({
             id: key,
@@ -30,7 +33,7 @@ createCategory = async (req,res) => {
 //取得所有分類
 getCreateCategory = async (req,res) => {
     try {
-        const snapshot = await firebaseDb.ref('/categories').once('value');
+        const snapshot = await categoriesRef.once('value');
         const categoryMenu = snapshot.val();
 
         if (!categoryMenu) {
@@ -86,6 +89,34 @@ deleteCreateCategory = async (req,res) => {
         })
     }
 };
+
+// 取得子類別
+getSubcategory = async (req, res) => {
+    try {
+        const snapshot = await categoriesRef.child(`/${req.params.categoryId}/subcategories`).once('value');
+        console.log(snapshot.val());
+        const subcategories = snapshot.val();
+
+        if (!subcategories) {
+            return res.status(404).json({
+                success: false,
+                message: '沒有找到子類別資料'
+            });
+        }
+
+        res.status(200).json({
+            success: true,
+            message: '取得子類別成功',
+            data: subcategories
+        });
+    } catch (error) {
+        res.status(500).json({
+            success: false,
+            message: '取得子類別失敗',
+            error: error.message
+        });
+    }
+}
 //新增子分類
 createSubcategory = async (req,res) => {
     try {
@@ -162,6 +193,7 @@ module.exports = {
     getCreateCategory,
     updateCreateCategory,
     deleteCreateCategory,
+    getSubcategory,
     createSubcategory,
     updateCreateSubcategory,
     deleteCreateSubcategory,
