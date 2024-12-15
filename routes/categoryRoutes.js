@@ -22,45 +22,38 @@ router.get('/all',
 router.post('/category', 
     /* 	#swagger.tags = ['管理者 - 選單']
         #swagger.description = '新增主選單' */
-    verifyAdmin,
     createCategory);
 //更新主選單
 router.put('/:categoryId', 
     /* 	#swagger.tags = ['管理者 - 選單']
         #swagger.description = '更新主選單' */
-    verifyAdmin,
     updateCreateCategory);
 //刪除主選單
 router.delete('/:categoryId', 
     /* 	#swagger.tags = ['管理者 - 選單']
         #swagger.description = '刪除主選單' */
-    verifyAdmin,
     deleteCreateCategory);
 
 //取得子選單
 router.get('/:categoryId/subcategories', 
     /* 	#swagger.tags = ['使用者 - 選單','管理者 - 選單']
         #swagger.description = '取得子選單' */
-    verifyAdmin,
     getSubcategory);
 
 //新增子選單
 router.post('/:categoryId/subcategories', 
     /* 	#swagger.tags = ['管理者 - 選單']
         #swagger.description = '新增子選單' */
-    verifyAdmin,
     createSubcategory);
 //更新子選單
 router.put('/:categoryId/subcategories', 
     /* 	#swagger.tags = ['管理者 - 選單']
         #swagger.description = '更新子選單' */
-    verifyAdmin,
     updateCreateSubcategory);
 //刪除子選單
 router.delete('/:categoryId/subcategories', 
     /* 	#swagger.tags = ['管理者 - 選單']
         #swagger.description = '刪除子選單' */
-    verifyAdmin,
     deleteCreateSubcategory);
 
 module.exports = router;
