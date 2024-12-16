@@ -94,16 +94,13 @@ deleteCreateCategory = async (req,res) => {
 getSubcategory = async (req, res) => {
     try {
         const snapshot = await categoriesRef.child(`/${req.params.categoryId}/subcategories`).once('value');
-        console.log(snapshot.val());
         const subcategories = snapshot.val();
-
         if (!subcategories) {
             return res.status(404).json({
                 success: false,
                 message: '沒有找到子類別資料'
             });
         }
-
         res.status(200).json({
             success: true,
             message: '取得子類別成功',
@@ -133,6 +130,7 @@ createSubcategory = async (req,res) => {
                 });
             } else {
                 await newSubcategoryRef.set({
+                    categoryId: req.params.categoryId,
                     id: newSubcategoryRef.key, // 儲存自動生成的唯一 ID
                     name: req.body.name, // 子分類名稱
                     is_enabled: req.body.is_enabled,
