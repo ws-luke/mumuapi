@@ -16,7 +16,8 @@ const serviceAccount = {
 
 admin.initializeApp({
   credential: admin.credential.cert(serviceAccount),
-  databaseURL: "https://mumu-865bc-default-rtdb.asia-southeast1.firebasedatabase.app"
+  databaseURL: process.env.FIREBASE_DATABASEURL,
+  storageBucket: process.env.FIREBASE_STORAGEBUCKET,
 });
 
 module.exports = admin;

@@ -23,6 +23,7 @@
     "firebase": "^8.10.1",
     "firebase-admin": "^13.0.0",
     "googleapis": "^144.0.0",
+    "multer": "^1.4.5-lts.1",
     "nodemailer": "^6.9.16",
     "nodemon": "^3.1.7",
     "swagger-autogen": "^2.23.7",

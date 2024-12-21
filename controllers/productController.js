@@ -5,27 +5,103 @@ const { format } = require('date-fns');
 const getProductRef = (id) => firebaseDb.ref('products').child(id);
 
 //取得商品列表
-getProducts = async (req,res) => {
+getProducts = async (req, res) => {
     try {
-        const limit = req.query.limit || 12;
-        const startAt = req.query.startAt || null;
-        let query = firebaseDb.ref('products').limitToFirst(limit);
-        if(startAt) query = query.startAt(startAt);
-        const snapshot = await query.once('value');
-        const data = snapshot.val();
+        const limit = parseInt(req.query.limit, 10) || 12; // 每頁商品數量
+        const page = parseInt(req.query.page, 10) || 1;    // 當前頁數
+        const categoryFilter = req.query.category || '';  // 類別篩選 - 名稱
+        const subcategoryFilter = req.query.subcategory || ''; // 子類別篩選 - 名稱
+        const statusFilter = req.query.status || '';      // 上架狀態篩選
+
+        if (page < 1 || limit < 1) {
+        return res.status(400).json({
+            success: false,
+            message: '頁數和每頁商品數量必須大於 0',
+        });
+        }
+
+        // 從 Firebase 取得所有商品資料
+        const snapshot = await firebaseDb.ref('products').once('value');
+        const allData = snapshot.val();
+
+        // 如果沒有資料，直接返回空
+        if (!allData) {
+            return res.status(200).json({
+                success: true,
+                message: '取得商品列表成功',
+                data: {
+                    products: [],
+                    pagination: {
+                        totalItems: 0,
+                        totalPages: 0,
+                        currentPage: page,
+                        limit,
+                    },
+                },
+            });
+        }
+
+        // 將資料轉換為陣列
+        let products = Object.entries(allData).map(([id, value]) => ({
+            id,
+            ...value,
+        }));
+
+        // 篩選主類別的商品
+        if (categoryFilter === '') {
+            products = Object.entries(allData).map(([id, value]) => ({
+                id,
+                ...value,
+            }));
+        } else {
+            products = products.filter(product => product.category === categoryFilter);
+        }
+
+        // 篩選子類別的商品
+        if (subcategoryFilter) {
+            products = products.filter(product => product.subcategory === subcategoryFilter);
+        }
+        
+        if (statusFilter !== undefined && statusFilter !== '') {
+            const isEnabled = parseInt(statusFilter, 10);
+            if (isEnabled === 1 || isEnabled === 0) {
+                products = products.filter(product => product.is_enabled === isEnabled);
+            }
+        }
+
+        // 計算總商品數量和總頁數
+        const totalItems = products.length;
+        const totalPages = Math.ceil(totalItems / limit);
+
+        // 計算當前頁的商品資料
+        const startIndex = (page - 1) * limit;
+        const endIndex = page * limit;
+        const paginatedProducts = products.slice(startIndex, endIndex);
+        
+        console.log('Category:', categoryFilter, 'Subcategory:', subcategoryFilter);
+
+        // 回傳資料
         res.status(200).json({
             success: true,
             message: '取得商品列表成功',
-            data
-        })
+            data: {
+                products: paginatedProducts, // 當前頁的商品資料
+                pagination: {
+                    totalItems,   // 總商品數量
+                    totalPages,   // 總頁數
+                    currentPage: page, // 當前頁數
+                    limit,        // 每頁商品數量
+                },
+            },
+        });
     } catch (error) {
         res.status(500).json({
-            success: false,
-            message: '取得商品列表失敗',
-            error: error.message,
+        success: false,
+        message: '取得商品列表失敗',
+        error: error.message,
         });
     }
-}
+};
 //取得商品
 getProduct = async (req,res) => {
     try {
@@ -67,8 +143,8 @@ createProduct = async (req,res)=>{
             category: productData.category, // 分類
             subcategory: productData.subcategory, // 子分類
             productVariants: productData.productVariants,
-            // imageUrl: productData.imageUrl,
-            // imagesUrl: productData.imagesUrl,
+            imageUrl: productData.imageUrl,
+            imagesUrl: productData.imagesUrl,
             createdAt: format(new Date(),'yyyy-MM-dd HH:mm:ss'),
             updatedAt: format(new Date(),'yyyy-MM-dd HH:mm:ss'),
         };

@@ -9,6 +9,7 @@ const user = require('./routes/userRoutes'); // 用戶
 const categoryRoutes = require('./routes/categoryRoutes'); // 分類
 const product = require('./routes/productRoutes'); // 產品
 const orderRoutes = require('./routes/orderRoutes'); // 訂單
+const fileRoutes = require('./routes/fileRoutes');
 const adminUserRouter = require('./routes/adminUserRouter');
 
 app.use(session({
@@ -30,7 +31,7 @@ app.use('/api/user',user); // 用戶
 app.use('/api/categories', categoryRoutes); // 分類
 app.use('/api/products', product); // 產品
 app.use('/api/orders',orderRoutes); // 訂單
-
+app.use('/api/files', fileRoutes); // 上傳圖片
 app.use('/api/admin', adminUserRouter);
 
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));

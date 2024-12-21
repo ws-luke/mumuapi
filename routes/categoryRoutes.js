@@ -51,7 +51,7 @@ router.put('/:categoryId/subcategories',
         #swagger.description = '更新子選單' */
     updateCreateSubcategory);
 //刪除子選單
-router.delete('/:categoryId/subcategories', 
+router.delete('/:categoryId/subcategories/:subcategoryId', 
     /* 	#swagger.tags = ['管理者 - 選單']
         #swagger.description = '刪除子選單' */
     deleteCreateSubcategory);

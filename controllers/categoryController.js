@@ -95,10 +95,11 @@ getSubcategory = async (req, res) => {
     try {
         const snapshot = await categoriesRef.child(`/${req.params.categoryId}/subcategories`).once('value');
         const subcategories = snapshot.val();
-        if (!subcategories) {
-            return res.status(404).json({
-                success: false,
-                message: '沒有找到子類別資料'
+        if (subcategories === null) {
+            return res.status(200).json({
+                success: true,
+                message: '沒有找到子類別資料',
+                data: {}
             });
         }
         res.status(200).json({
@@ -172,8 +173,13 @@ updateCreateSubcategory = async (req,res) => {
 deleteCreateSubcategory = async (req,res) => {
     try {
         const subcategoryRfe = firebaseDb.ref(`categories/${req.params.categoryId}/subcategories`);
-        const deleteSubcategory = subcategoryRfe.child(req.body.id);
+        const deleteSubcategory = subcategoryRfe.child(req.params.subcategoryId);
+
         await deleteSubcategory.remove();
+        const snapshot = await subcategoryRfe.once('value');
+        if(snapshot.val() === null) {
+            firebaseDb.ref(`categories/${req.params.categoryId}`).update({subcategories: ""});
+        }
         res.status(200).json({
             success: true,
             message: '刪除子分類成功'

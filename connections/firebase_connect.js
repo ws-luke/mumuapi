@@ -1,13 +1,13 @@
 require('dotenv').config();
 const firebase = require("firebase");
 const firebaseConfig = {
-  apiKey: "AIzaSyA96v4PeDQon2jP_oZTCAYyAbbtwN3IYw4",
-  authDomain: "mumu-865bc.firebaseapp.com",
-  databaseURL: "https://mumu-865bc-default-rtdb.asia-southeast1.firebasedatabase.app",
-  projectId: "mumu-865bc",
-  storageBucket: "mumu-865bc.firebasestorage.app",
-  messagingSenderId: "893056676076",
-  appId: "1:893056676076:web:96a2352625a709bbea35c9"
+  apiKey: process.env.FIREBASE_APIKEY,
+  authDomain: process.env.FIREBASE_AUTHDOMAIN,
+  databaseURL: process.env.FIREBASE_DATABASEURL,
+  projectId: process.env.FIREBASE_PROJECT_ID,
+  storageBucket: process.env.FIREBASE_STORAGEBUCKET,
+  messagingSenderId: process.env.FIREBASE_MESSAGINGSENDERID,
+  appId: process.env.FIREBASE_APPID
 };
 
 // Initialize Firebase
